@@ -1,0 +1,18 @@
+{
+    "name": "shorter/backend",
+    "description": "Restful api for shorter",
+    "type": "project",
+    "license": "Apache License 2.0",
+    "autoload": {
+        "psr-4": {
+            "Shorter\\Backend\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "saniori",
+            "email": "rodion2992@gmail.com"
+        }
+    ],
+    "require": {}
+}
