@@ -4,7 +4,7 @@ namespace Routing;
 
 require_once __DIR__ . "/../../vendor/autoload.php";
 
-use Flik\Backend\Routing\Router;
+use Shorter\Backend\Routing\Router;
 use PHPUnit\Framework\TestCase;
 
 class RouterTest extends TestCase
