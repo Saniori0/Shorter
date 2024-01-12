@@ -63,13 +63,13 @@ class Router
                         $arguments = $reflectionAttribute->getArguments();
 
                         $path = $arguments[1];
-                        $options = $arguments[2];
+                        $middlewares = $arguments[2];
 
-                        if (!isset($path, $options)) throw new ArgumentCountError("Controller {{$controllerName}} -> Route {{$reflectionMethod->getName()}()}");
+                        if (!isset($path, $middlewares)) throw new ArgumentCountError("Controller {{$controllerName}} -> Route {{$reflectionMethod->getName()}()}");
                         if (!is_string($path)) throw new TypeError("Controller {{$controllerName}} -> Route {{$reflectionMethod->getName()}()} Path must be string");
-                        if (!is_array($options)) throw new TypeError("Controller {{$controllerName}} -> Route {{$reflectionMethod->getName()}()} Options must be array");
+                        if (!is_array($middlewares)) throw new TypeError("Controller {{$controllerName}} -> Route {{$reflectionMethod->getName()}()} Middlewares must be array");
 
-                        $Route = $this->route($path, $methodClosure, $options);
+                        $Route = $this->route($path, $methodClosure, $middlewares);
 
                         break;
 
@@ -90,14 +90,14 @@ class Router
      * See Routing\Route
      * @param string $path
      * @param Closure $callback
-     * @param array $options see Routing\Route::Options
+     * @param array $middlewares
      * @return Route
      */
-    public function route(string $path, Closure $callback, array $options = []): Route
+    public function route(string $path, Closure $callback, array $middlewares = []): Route
     {
 
         $route = new Route(new Path($path), $callback, $this);
-        $route->setOptions($options);
+        $route->setMiddlewares($middlewares);
 
         return $this->routes[] = $route;
 

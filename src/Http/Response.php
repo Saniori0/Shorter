@@ -45,7 +45,7 @@ class Response
         }
 
         http_response_code($this->code);
-        print($this->data);
+        exit($this->data);
 
     }
 
@@ -72,7 +72,6 @@ class Response
         $response->setHeader("Content-Type", "text/html");
 
         return $response;
-
     }
 
 }

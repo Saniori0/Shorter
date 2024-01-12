@@ -6,7 +6,17 @@ namespace Shorter\Backend\Http;
 class Request
 {
 
-    public function __construct(private array $headers = [])
+    private static self $instance;
+
+    public static function getInstance(): self
+    {
+
+        if (!isset(self::$instance)) self::$instance = new self();
+        return self::$instance;
+
+    }
+
+    private function __construct(private array $headers = [])
     {
 
         $this->headers = getallheaders();
@@ -37,7 +47,7 @@ class Request
     public function getUriWithoutQueryString(): string
     {
 
-        return str_replace("?".$this->getQueryString(), "", $this->getURI());
+        return str_replace("?" . $this->getQueryString(), "", $this->getURI());
 
     }
 
@@ -58,6 +68,13 @@ class Request
     public function getHeaderLine(string $headerName): ?string
     {
         return $this->headers[$headerName];
+    }
+
+    public function getPost(string $key): mixed
+    {
+
+        return $_POST[$key];
+
     }
 
 }

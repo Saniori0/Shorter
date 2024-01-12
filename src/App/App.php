@@ -18,7 +18,7 @@ use Shorter\Backend\Routing\Router;
 class App
 {
 
-    public function __construct(public readonly Request $request = new Request(), public readonly Router $router = new Router()){}
+    public function __construct(public readonly Router $router = new Router()){}
 
     public function __call(string $method, array $arguments = []){
 
@@ -50,25 +50,25 @@ class App
 
     }
 
-    public function dispatchByHttpRequest(){
+    public function dispatchByHttpRequest(): void
+    {
 
-        $routerQuery = strtolower($this->request->getMethod()) . $this->request->getUriWithoutQueryString();
+        $routerQuery = strtolower(Request::getInstance()->getMethod()) . Request::getInstance()->getUriWithoutQueryString();
 
         $PreparedRoute = $this->router->findRouteByQuery($routerQuery);
 
-        if($PreparedRoute instanceof PreparedRoute)
+        if(is_null($PreparedRoute) || (is_object($PreparedRoute) && !($PreparedRoute instanceof PreparedRoute)))
         {
 
             Response::json(404, [
                 "message" => "No matching endpoints found",
                 "data" => []
-            ]);
+            ])->dispatch();
+            return;
 
         }
 
-        $PreparedRoute->execute([
-            "request" => $this->request
-        ]);
+        $PreparedRoute->execute();
 
     }
 

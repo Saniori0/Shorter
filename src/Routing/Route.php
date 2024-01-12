@@ -8,7 +8,7 @@ use Closure;
 class Route
 {
 
-    private array $options = [];
+    private array $middlewares = [];
 
     /**
      * @param Path $path Path
@@ -20,14 +20,14 @@ class Route
     }
 
     /**
-     * Options can be used when it is necessary to add separate method processing. For example, JWT authorization or captcha.
-     * @param array $options
+     * Middlewares can be used when it is necessary to add separate method processing. For example, JWT authorization or captcha.
+     * @param array $middlewares
      * @return void
      */
-    public function setOptions(array $options): void
+    public function setMiddlewares(array $middlewares): void
     {
 
-        $this->options = $options;
+        $this->middlewares = $middlewares;
 
     }
 
@@ -39,6 +39,11 @@ class Route
     public function getCallback(): Closure
     {
         return $this->callback;
+    }
+
+    public function getMiddlewares(): array
+    {
+        return $this->middlewares;
     }
 
 }

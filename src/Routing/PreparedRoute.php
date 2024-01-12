@@ -65,6 +65,33 @@ class PreparedRoute
     }
 
     /**
+     * See Routing\Route::setMiddlewares
+     * @return array
+     */
+    private function getMiddlewaresData(): array
+    {
+
+        $middlewaresData = [];
+
+        $routeMiddlewares = $this->getRoute()->getMiddlewares();
+
+        foreach ($routeMiddlewares as $routeMiddleware){
+
+            $routeMiddleware = new $routeMiddleware;
+
+            if($routeMiddleware instanceof AbstractMiddleware){
+
+                $middlewaresData[$routeMiddleware::$dataName] = $routeMiddleware::execute();
+
+            }
+
+        }
+
+        return $middlewaresData;
+
+    }
+
+    /**
      * @param mixed $data data from summoner of route
      * @return mixed
      */
@@ -75,6 +102,7 @@ class PreparedRoute
 
         return $callback((object)[
             "route" => $this,
+            "middlewares" => $this->getMiddlewaresData(),
             "summoner" => $data,
         ]);
 
