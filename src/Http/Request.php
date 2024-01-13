@@ -77,4 +77,11 @@ class Request
 
     }
 
+    public function getGet(string $key): mixed
+    {
+
+        return $_GET[$key];
+
+    }
+
 }

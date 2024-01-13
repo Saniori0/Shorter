@@ -19,15 +19,36 @@ class Route
     {
     }
 
+
+    /**
+     * Add middleware to route
+     * @param string $middlewareClassName
+     * @return void
+     */
+    public function middleware(string $middlewareClassName){
+
+        $middlewareInstance = new $middlewareClassName;
+
+        if(!($middlewareInstance instanceof AbstractMiddleware)) throw new \InvalidArgumentException("Middleware must be instance of AbstractMiddleware");
+
+        $this->middlewares[] = $middlewareInstance;
+
+    }
+
     /**
      * Middlewares can be used when it is necessary to add separate method processing. For example, JWT authorization or captcha.
      * @param array $middlewares
      * @return void
      */
-    public function setMiddlewares(array $middlewares): void
+    public function setMiddlewares(array $middlewaresClassName): void
     {
 
-        $this->middlewares = $middlewares;
+        /** @var string $middlewareClassName */
+        foreach ($middlewaresClassName as $middlewareClassName) {
+
+            $this->middleware($middlewareClassName);
+
+        }
 
     }
 

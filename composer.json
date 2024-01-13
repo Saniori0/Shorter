@@ -14,5 +14,7 @@
             "email": "rodion2992@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "hostbrook/sypex-geo": "^1.6"
+    }
 }

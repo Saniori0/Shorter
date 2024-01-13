@@ -20,7 +20,7 @@ class JwtAuthorization extends AbstractMiddleware
 
         try {
 
-            $token = Request::getInstance()->getHeaderLine("x-jwt");
+            $token = @Request::getInstance()->getHeaderLine("x-jwt") ?? "";
 
             $JWT = JWT::verify($token, [
                 "alg" => "bcrypt",

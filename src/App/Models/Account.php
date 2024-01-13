@@ -80,6 +80,13 @@ class Account
 
     }
 
+    public function createLink(string $url): Link
+    {
+
+        return Link::create($this, $url);
+
+    }
+
     public function hasRightOnLink(int $linkId): bool
     {
 
@@ -87,15 +94,17 @@ class Account
 
     }
 
-    /**
-     * Gets all user links with pagination
-     * @param int $page page number
-     * @return array
-     */
+    public function countLinkPages(): float
+    {
+
+        return Link::countLinkPages($this);
+
+    }
+
     public function getLinksWithPagination(int $page = 1): array
     {
 
-        return [];
+        return Link::getByAuthorWithPagination($this, $page);
 
     }
 

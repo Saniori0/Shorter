@@ -73,17 +73,11 @@ class PreparedRoute
 
         $middlewaresData = [];
 
-        $routeMiddlewares = $this->getRoute()->getMiddlewares();
+        $middlewaresInstance = $this->getRoute()->getMiddlewares();
 
-        foreach ($routeMiddlewares as $routeMiddleware){
+        foreach ($middlewaresInstance as $middlewareInstance){
 
-            $routeMiddleware = new $routeMiddleware;
-
-            if($routeMiddleware instanceof AbstractMiddleware){
-
-                $middlewaresData[$routeMiddleware::$dataName] = $routeMiddleware::execute();
-
-            }
+            $middlewaresData[$middlewareInstance::$dataName] = $middlewareInstance::execute();
 
         }
 

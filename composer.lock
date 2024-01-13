@@ -1,0 +1,60 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "5507a69fac9dd308de2f61fca24c3b8a",
+    "packages": [
+        {
+            "name": "hostbrook/sypex-geo",
+            "version": "1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hostbrook/sypex-geo.git",
+                "reference": "bd500fc6df6a913846fd1e1495b9cda864a346b2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hostbrook/sypex-geo/zipball/bd500fc6df6a913846fd1e1495b9cda864a346b2",
+                "reference": "bd500fc6df6a913846fd1e1495b9cda864a346b2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "package",
+            "autoload": {
+                "psr-4": {
+                    "HostBrook\\SypexGeo\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "HostBrook",
+                    "email": "support@hostbrook.com",
+                    "homepage": "https://hostbrook.com"
+                }
+            ],
+            "description": "Get location info by IP address",
+            "support": {
+                "issues": "https://github.com/hostbrook/sypex-geo/issues",
+                "source": "https://github.com/hostbrook/sypex-geo/tree/1.6"
+            },
+            "time": "2023-11-18T02:54:45+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.2.0"
+}
