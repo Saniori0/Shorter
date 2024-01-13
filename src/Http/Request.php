@@ -8,6 +8,13 @@ class Request
 
     private static self $instance;
 
+    private function __construct(private array $headers = [])
+    {
+
+        $this->headers = getallheaders();
+
+    }
+
     public static function getInstance(): self
     {
 
@@ -16,17 +23,17 @@ class Request
 
     }
 
-    private function __construct(private array $headers = [])
-    {
-
-        $this->headers = getallheaders();
-
-    }
-
     public function getMethod(): string
     {
 
         return $_SERVER["REQUEST_METHOD"];
+
+    }
+
+    public function getUriWithoutQueryString(): string
+    {
+
+        return str_replace("?" . $this->getQueryString(), "", $this->getURI());
 
     }
 
@@ -41,13 +48,6 @@ class Request
     {
 
         return $_SERVER["REQUEST_URI"];
-
-    }
-
-    public function getUriWithoutQueryString(): string
-    {
-
-        return str_replace("?" . $this->getQueryString(), "", $this->getURI());
 
     }
 

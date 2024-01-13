@@ -3,11 +3,12 @@
 
 namespace Shorter\Backend\App\Middlewares;
 
-use Shorter\Backend\App\Middlewares\Exceptions\JwtAuthException;
+use Shorter\Backend\App\Middlewares\Exceptions\AuthException;
 use Shorter\Backend\App\Models\Account;
 use Shorter\Backend\Http\Request;
 use Shorter\Backend\Http\Response;
 use Shorter\Backend\Routing\AbstractMiddleware;
+use Shorter\Backend\Utils\Exceptions\JwtException;
 use Shorter\Backend\Utils\JWT;
 
 class JwtAuthorization extends AbstractMiddleware
@@ -28,13 +29,13 @@ class JwtAuthorization extends AbstractMiddleware
             ]);
 
             $AccountID = @$JWT->getPayload()["id"];
-            $Account = Account::getById($AccountID);
+            $Account = Account::findById($AccountID);
 
-            if(!$Account) throw new JwtAuthException("Account with provided id not exist");
+            if (!$Account) throw new AuthException("Account with provided id not exist");
 
             return $Account;
 
-        } catch (\Shorter\Backend\Utils\Exceptions\JwtException $e) {
+        } catch (AuthException $e) {
 
             Response::json(403, [
                 "message" => "Jwt not verified",

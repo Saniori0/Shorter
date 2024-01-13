@@ -3,7 +3,7 @@
 
 namespace Shorter\Backend\App\Middlewares\Exceptions;
 
-class JwtAuthException extends \Exception
+class AuthException extends \Exception
 {
 
 }

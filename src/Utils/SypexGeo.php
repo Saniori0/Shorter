@@ -4,6 +4,9 @@
 namespace Shorter\Backend\Utils;
 
 
-#[\AllowDynamicProperties]
+use AllowDynamicProperties;
+
+#[AllowDynamicProperties]
 class SypexGeo extends \HostBrook\SypexGeo\SypexGeo
-{}
+{
+}

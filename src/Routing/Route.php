@@ -4,6 +4,7 @@
 namespace Shorter\Backend\Routing;
 
 use Closure;
+use InvalidArgumentException;
 
 class Route
 {
@@ -19,20 +20,19 @@ class Route
     {
     }
 
+    public function getPath(): Path
+    {
+        return $this->path;
+    }
 
-    /**
-     * Add middleware to route
-     * @param string $middlewareClassName
-     * @return void
-     */
-    public function middleware(string $middlewareClassName){
+    public function getCallback(): Closure
+    {
+        return $this->callback;
+    }
 
-        $middlewareInstance = new $middlewareClassName;
-
-        if(!($middlewareInstance instanceof AbstractMiddleware)) throw new \InvalidArgumentException("Middleware must be instance of AbstractMiddleware");
-
-        $this->middlewares[] = $middlewareInstance;
-
+    public function getMiddlewares(): array
+    {
+        return $this->middlewares;
     }
 
     /**
@@ -52,19 +52,20 @@ class Route
 
     }
 
-    public function getPath(): Path
+    /**
+     * Add middleware to route
+     * @param string $middlewareClassName
+     * @return void
+     */
+    public function middleware(string $middlewareClassName)
     {
-        return $this->path;
-    }
 
-    public function getCallback(): Closure
-    {
-        return $this->callback;
-    }
+        $middlewareInstance = new $middlewareClassName;
 
-    public function getMiddlewares(): array
-    {
-        return $this->middlewares;
+        if (!($middlewareInstance instanceof AbstractMiddleware)) throw new InvalidArgumentException("Middleware must be instance of AbstractMiddleware");
+
+        $this->middlewares[] = $middlewareInstance;
+
     }
 
 }

@@ -2,6 +2,8 @@
 
 namespace Shorter\Backend\App\Models;
 
+use PDO;
+use Shorter\Backend\Utils\Pagination;
 use Shorter\Backend\Http\Request;
 use Shorter\Backend\Utils\SypexGeo;
 
@@ -16,7 +18,7 @@ trait LinkStatisticsTrait
         $countryCode = $geo->getCountry($ip);
         $time = time();
 
-        if($countryCode == "") $countryCode = "--";
+        if ($countryCode == "") $countryCode = "--";
 
         $Statement = self::getMysqlPdo()->prepare("INSERT INTO statistics (ip, country, time, link) VALUES (?, ?, ?, ?)");
 
@@ -26,6 +28,49 @@ trait LinkStatisticsTrait
             $time,
             $this->getId(),
         ]);
+
+    }
+
+    public function countStatisticsPages(): int
+    {
+
+        return $this->generateStatisticsPagination()->countPages();
+
+    }
+
+    private function generateStatisticsPagination(): Pagination
+    {
+
+        $Pagination = new Pagination("statistics");
+        $Pagination->where("link = ?", [$this->getId()]);
+
+        return $Pagination;
+
+    }
+
+    public function getStatisticsWithPagination(int $page = 1): array
+    {
+
+        return $this->generateStatisticsPagination()->getRowsByPageNumber($page);
+
+    }
+
+    public function getStatisticsByCountry(): array
+    {
+
+        $Statement = self::getMysqlPdo()->prepare("SELECT count(id) as quantity, country FROM statistics WHERE link = {$this->id} GROUP BY country");
+        $Statement->execute();
+
+        $fetchedCountryStatistics = $Statement->fetchAll(PDO::FETCH_ASSOC);
+        $servedCountryStatistics = [];
+
+        foreach ($fetchedCountryStatistics as &$fetchedCountryStatistic) {
+
+            $servedCountryStatistics[$fetchedCountryStatistic["country"]] = $fetchedCountryStatistic["quantity"];
+
+        }
+
+        return $servedCountryStatistics;
 
     }
 

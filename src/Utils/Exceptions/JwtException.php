@@ -3,7 +3,9 @@
 
 namespace Shorter\Backend\Utils\Exceptions;
 
-class JwtException extends \Exception
+use Exception;
+
+class JwtException extends Exception
 {
 
 }

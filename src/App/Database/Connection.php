@@ -3,12 +3,14 @@
 
 namespace Shorter\Backend\App\Database;
 
+use PDO;
+
 class Connection
 {
 
-    private static \PDO $mysqlPdo;
+    private static PDO $mysqlPdo;
 
-    public static function getMysqlPdo(): \PDO
+    public static function getMysqlPdo(): PDO
     {
 
         return self::$mysqlPdo;
@@ -18,7 +20,7 @@ class Connection
     public static function setMysqlPdo(string $dsn, string $username, string $password): void
     {
 
-        self::$mysqlPdo = new \PDO($dsn, $username, $password);
+        self::$mysqlPdo = new PDO($dsn, $username, $password);
 
     }
 

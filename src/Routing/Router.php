@@ -5,9 +5,9 @@ namespace Shorter\Backend\Routing;
 
 use ArgumentCountError;
 use Closure;
-use Shorter\Backend\Routing\Hooking\Hooker;
 use ReflectionClass;
 use ReflectionMethod;
+use Shorter\Backend\Routing\Hooking\Hooker;
 use TypeError;
 
 /**

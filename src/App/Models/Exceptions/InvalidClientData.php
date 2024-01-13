@@ -3,7 +3,9 @@
 
 namespace Shorter\Backend\App\Models\Exceptions;
 
-class InvalidClientData extends \InvalidArgumentException
+use InvalidArgumentException;
+
+class InvalidClientData extends InvalidArgumentException
 {
 
 }

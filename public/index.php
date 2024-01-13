@@ -21,6 +21,7 @@ Connection::setMysqlPdo("mysql:host={$_ENV["MYSQL_HOST"]};port={$_ENV["MYSQL_POR
 
 $app = new App();
 
+// Hook for finding link by id or alias
 $app->router->hooker->hook("findLinkBy", function (string $fieldName, string $fieldValue) {
 
     /** @var false|Link $link */
@@ -54,6 +55,7 @@ $app->router->hooker->hook("findLinkBy", function (string $fieldName, string $fi
 
 });
 
+// Create Account
 $app->post("/accounts", function (object $data) {
 
     try {
@@ -82,6 +84,7 @@ $app->post("/accounts", function (object $data) {
 
 }, []);
 
+// Get account of JWT
 $app->get("/accounts/byJwt", function (object $data) {
 
     $Account = $data->middlewares["JwtAuth"];
@@ -93,6 +96,7 @@ $app->get("/accounts/byJwt", function (object $data) {
 
     }, [JwtAuthorization::class]);
 
+// Sign in Account
 $app->get("/accounts/jwt", function (object $data) {
 
     try {
@@ -120,6 +124,7 @@ $app->get("/accounts/jwt", function (object $data) {
 
 }, []);
 
+// Create link
 $app->post("/accounts/links", function (object $data) {
 
     try {
@@ -146,32 +151,73 @@ $app->post("/accounts/links", function (object $data) {
 
 }, [JwtAuthorization::class]);
 
+// Get links with pagination (GET page={int})
 $app->get("/accounts/links", function (object $data) {
 
     $Account = $data->middlewares["JwtAuth"];
-    $Links = $Account->getLinksWithPagination((int)@Request::getInstance()->getGet("page") ?? 1);
+
+    $page = (int) @Request::getInstance()->getGet("page");
+    if($page <= 0) $page = 1;
+
+    $Links = $Account->getLinksWithPagination($page);
 
     Response::json(200, [
         "message" => "Successfully!",
         "data" => [
-            "links" => $Links,
+            "list" => $Links,
             "pages" => $Account->countLinkPages()
         ]
     ])->dispatch();
 
 }, [JwtAuthorization::class]);
 
+// Get link by id & jwt
 $app->get("/accounts/links/byId/:link@findLinkBy->id", function (object $data) {
+
+    $Account = $data->middlewares["JwtAuth"];
+    $link = $data->route->getParams()->link;
+
+    if(!$Account->hasRightOnLink($link)){
+
+        Response::json(403, [
+            "message" => "Forbidden!",
+            "data" => []
+        ])->dispatch();
+
+    }
 
     Response::json(200, [
         "message" => "Successfully!",
         "data" => [
-            $data->route->getParams()->link->get()
+            $link->get()
         ]
     ])->dispatch();
 
 }, [JwtAuthorization::class]);
 
+// Get link statistics by id & jwt
+$app->get("/accounts/links/byId/:link@findLinkBy->id/statistics", function (object $data) {
+
+    $link = $data->route->getParams()->link;
+
+    $page = (int) @Request::getInstance()->getGet("page");
+
+    if($page <= 0) $page = 1;
+
+    Response::json(200, [
+        "message" => "Successfully!",
+        "data" => [
+            "requests" => [
+                "list" => $link->getStatisticsWithPagination($page),
+                "pages" => $link->countStatisticsPages(),
+            ],
+            "countries" => $link->getStatisticsByCountry()
+        ]
+    ])->dispatch();
+
+}, [JwtAuthorization::class]);
+
+// Get link by alias for redirect
 $app->get("/accounts/links/byAlias/:link@findLinkBy->alias", function (object $data) {
 
     $link = $data->route->getParams()->link;

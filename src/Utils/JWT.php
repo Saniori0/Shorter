@@ -21,13 +21,6 @@ class JWT
 
     }
 
-    public function pack(): string
-    {
-
-        return "{$this->prepareToken()}.{$this->getSignatureAsBase64()}";
-
-    }
-
     public function __toString()
     {
 
@@ -35,6 +28,45 @@ class JWT
 
     }
 
+    /**
+     * @param string $token jwt
+     * @param bool $deepUnpacking 0 - will provide data header & payload as base64 1 - will provide header & payload as array. | The signature always remains in hashed format.
+     * @return array
+     */
+    public static function unpack(string $token, bool $deepUnpacking = false): array
+    {
+
+        $explodedTokenByDot = explode(".", $token);
+
+        if (count($explodedTokenByDot) != 3) throw new JwtMalformException();
+
+        $headerAsBase64 = $explodedTokenByDot[0];
+        $payloadAsBase64 = $explodedTokenByDot[1];
+
+        $signature = base64_decode($explodedTokenByDot[2]);
+
+        if ($deepUnpacking) {
+
+            $headerAsJson = base64_decode($headerAsBase64);
+            $payloadAsJson = base64_decode($payloadAsBase64);
+
+            $header = json_decode($headerAsJson, 1);
+            $payload = json_decode($payloadAsJson, 1);
+
+        }
+
+        return [
+            $header ?? $headerAsBase64,
+            $payload ?? $payloadAsBase64,
+            $signature
+        ];
+
+    }
+
+    /**
+     * The verification method is described at https://jwt.io.
+     * @return string
+     */
     public static function verify(string $token, array $headerValidation): JWT
     {
 
@@ -72,42 +104,6 @@ class JWT
 
     }
 
-
-    /**
-     * @param string $token jwt
-     * @param bool $deepUnpacking 0 - will provide data header & payload as base64 1 - will provide header & payload as array. The signature always remains in hashed format.
-     * @return array
-     */
-    public static function unpack(string $token, bool $deepUnpacking = false): array
-    {
-
-        $explodedTokenByDot = explode(".", $token);
-
-        if (count($explodedTokenByDot) != 3) throw new JwtMalformException();
-
-        $headerAsBase64 = $explodedTokenByDot[0];
-        $payloadAsBase64 = $explodedTokenByDot[1];
-
-        $signature = base64_decode($explodedTokenByDot[2]);
-
-        if ($deepUnpacking) {
-
-            $headerAsJson = base64_decode($headerAsBase64);
-            $payloadAsJson = base64_decode($payloadAsBase64);
-
-            $header = json_decode($headerAsJson, 1);
-            $payload = json_decode($payloadAsJson, 1);
-
-        }
-
-        return [
-            $header ?? $headerAsBase64,
-            $payload ?? $payloadAsBase64,
-            $signature
-        ];
-
-    }
-
     /**
      * The generation method is described at https://jwt.io.
      * @return string
@@ -120,10 +116,17 @@ class JWT
 
     }
 
-    public function getSignatureAsBase64(): string
+    private function prepareToken(): string
     {
 
-        return base64_encode($this->generateSignatureByHeaderAndPayload());
+        return "{$this->getHeaderAsBase64()}.{$this->getPayloadAsBase64()}";
+
+    }
+
+    public function pack(): string
+    {
+
+        return "{$this->prepareToken()}.{$this->getSignatureAsBase64()}";
 
     }
 
@@ -132,29 +135,17 @@ class JWT
         return $this->header;
     }
 
-    public function getPayload(): array
+    public function getHeaderAsBase64(): string
     {
-        return $this->payload;
+
+        return base64_encode($this->getHeaderAsJson());
+
     }
 
     public function getHeaderAsJson(): bool|string
     {
 
         return json_encode($this->header);
-
-    }
-
-    public function getPayloadAsJson(): bool|string
-    {
-
-        return json_encode($this->payload);
-
-    }
-
-    public function getHeaderAsBase64(): string
-    {
-
-        return base64_encode($this->getHeaderAsJson());
 
     }
 
@@ -165,11 +156,23 @@ class JWT
 
     }
 
-    private function prepareToken(): string
+    public function getPayloadAsJson(): bool|string
     {
 
-        return "{$this->getHeaderAsBase64()}.{$this->getPayloadAsBase64()}";
+        return json_encode($this->payload);
 
+    }
+
+    public function getSignatureAsBase64(): string
+    {
+
+        return base64_encode($this->generateSignatureByHeaderAndPayload());
+
+    }
+
+    public function getPayload(): array
+    {
+        return $this->payload;
     }
 
 }
