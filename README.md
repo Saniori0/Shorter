@@ -5,12 +5,18 @@
 2) Mysql 8.2
 3) Apache
 
+Переименовать .env.example в .env
+
 ### Apache
 1) Включить поддержку .htaccess
 2) Сделать /public/ кореневой директорией веб-сервера
 
 ### Mysql
 1) Добавить в .env нужные данные
+
+### PHP
+1) Скачать нужные пакеты композитора
+2) Для работы необходимы mbstrings (https://www.php.net/manual/ru/mbstring.installation.php)
 
 ## Функции
 
