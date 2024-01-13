@@ -7,7 +7,7 @@ ini_set('display_startup_errors', true);
 error_reporting(E_ALL);
 
 use Shorter\Backend\App\App;
-use Shorter\Backend\App\DatabaseConnection;
+use Shorter\Backend\App\Database\Connection;
 use Shorter\Backend\App\Middlewares\JwtAuthorization;
 use Shorter\Backend\App\Models\Account;
 use Shorter\Backend\App\Models\Exceptions\InvalidClientData;
@@ -17,7 +17,7 @@ use Shorter\Backend\Http\Response;
 
 $_ENV = parse_ini_file(__DIR__ . "/../.env");
 
-DatabaseConnection::setMysqlPdo("mysql:host={$_ENV["MYSQL_HOST"]};port={$_ENV["MYSQL_PORT"]};dbname={$_ENV["MYSQL_DATABASE"]}", $_ENV["MYSQL_USERNAME"], $_ENV["MYSQL_PASSWORD"]);
+Connection::setMysqlPdo("mysql:host={$_ENV["MYSQL_HOST"]};port={$_ENV["MYSQL_PORT"]};dbname={$_ENV["MYSQL_DATABASE"]}", $_ENV["MYSQL_USERNAME"], $_ENV["MYSQL_PASSWORD"]);
 
 $app = new App();
 
@@ -29,11 +29,11 @@ $app->router->hooker->hook("findLinkBy", function (string $fieldName, string $fi
     switch ($fieldName) {
 
         case "alias":
-            $link = Link::getByAlias($fieldValue);
+            $link = Link::findByAlias($fieldValue);
             break;
 
         case "id":
-            $link = Link::getById($fieldValue);
+            $link = Link::findById($fieldValue);
             break;
 
         default:

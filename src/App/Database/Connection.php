@@ -1,9 +1,9 @@
 <?php
 
 
-namespace Shorter\Backend\App;
+namespace Shorter\Backend\App\Database;
 
-class DatabaseConnection
+class Connection
 {
 
     private static \PDO $mysqlPdo;

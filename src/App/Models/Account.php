@@ -3,11 +3,11 @@
 
 namespace Shorter\Backend\App\Models;
 
-use Shorter\Backend\App\DatabaseConnection;
+use Shorter\Backend\App\Models\AbstractModel;
 use Shorter\Backend\App\Models\Exceptions\InvalidClientData;
 use Shorter\Backend\Utils\JWT;
 
-class Account
+class Account extends AbstractModel
 {
 
     public const USERNAME_FORMAT_ERROR = "Username length must be >= 6 and <= 24";
@@ -23,8 +23,7 @@ class Account
     private static function getByField(string $field, string|int|float|bool $value): false|self
     {
 
-        $Database = DatabaseConnection::getMysqlPdo();
-        $Statement = $Database->prepare("SELECT * FROM account WHERE $field = ?");
+        $Statement = self::getMysqlPdo()->prepare("SELECT * FROM account WHERE $field = ?");
         $Statement->execute([$value]);
 
         $AccountRow = @$Statement->fetchAll(\PDO::FETCH_ASSOC)[0];
@@ -104,7 +103,7 @@ class Account
     public function getLinksWithPagination(int $page = 1): array
     {
 
-        return Link::getByAuthorWithPagination($this, $page);
+        return Link::findByAuthorWithPagination($this, $page);
 
     }
 
@@ -142,9 +141,7 @@ class Account
 
         }
 
-        $Database = DatabaseConnection::getMysqlPdo();
-
-        $Statement = $Database->prepare("INSERT INTO account (username, password, email) VALUES (?, ?, ?)");
+        $Statement = self::getMysqlPdo()->prepare("INSERT INTO account (username, password, email) VALUES (?, ?, ?)");
 
         $Statement->execute([
             $username,
@@ -152,7 +149,7 @@ class Account
             $email
         ]);
 
-        $AccountId = $Database->lastInsertId();
+        $AccountId = self::getMysqlPdo()->lastInsertId();
 
         return new self(
             $AccountId,

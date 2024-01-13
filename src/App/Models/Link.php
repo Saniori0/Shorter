@@ -3,12 +3,12 @@
 
 namespace Shorter\Backend\App\Models;
 
-use Shorter\Backend\App\DatabaseConnection;
+use Shorter\Backend\App\Models\AbstractModel;
 use Shorter\Backend\App\Models\Exceptions\InvalidClientData;
 use Shorter\Backend\Http\Request;
 use Shorter\Backend\Utils\SypexGeo;
 
-class Link
+class Link extends AbstractModel
 {
 
     public const URL_FORMAT_ERROR = "Url must match the format";
@@ -18,11 +18,10 @@ class Link
     {
     }
 
-    private static function getByField(string $field, string|int|float|bool $value): false|self
+    private static function findByField(string $field, string|int|float|bool $value): false|self
     {
 
-        $Database = DatabaseConnection::getMysqlPdo();
-        $Statement = $Database->prepare("SELECT * FROM link WHERE $field = ?");
+        $Statement = self::getMysqlPdo()->prepare("SELECT * FROM link WHERE $field = ?");
         $Statement->execute([$value]);
 
         $LinkRow = @$Statement->fetchAll(\PDO::FETCH_ASSOC)[0];
@@ -34,14 +33,14 @@ class Link
 
     }
 
-    public static function getById(int $id): false|self
+    public static function findById(int $id): false|self
     {
 
-        return self::getByField("id", $id);
+        return self::findByField("id", $id);
 
     }
 
-    public static function getByAlias(string $alias): false|self
+    public static function findByAlias(string $alias): false|self
     {
 
         if (mb_strlen($alias) != 13) {
@@ -50,7 +49,17 @@ class Link
 
         }
 
-        return self::getByField("alias", $alias);
+        return self::findByField("alias", $alias);
+
+    }
+
+    public static function generateLinksPaginationByAuthor(Account $author): Pagination
+    {
+
+        $Pagination = new Pagination("link");
+        $Pagination->where("author = ?", [$author->getId()]);
+
+        return $Pagination;
 
     }
 
@@ -59,47 +68,18 @@ class Link
      * @param int $page
      * @return Link[]
      */
-    public static function getByAuthorWithPagination(Account $author, int $page = 1): array
+    public static function findByAuthorWithPagination(Account $author, int $page = 1): array
     {
 
-        if ($page < 1) {
-
-            return [];
-
-        }
-
-        $Database = DatabaseConnection::getMysqlPdo();
-
-        $Statement = $Database->prepare("SELECT * FROM link WHERE author = :author ORDER BY id DESC LIMIT :linkPerPage OFFSET :pageOffset;");
-
-        $AuthorId = $author->getId();
-        $linkPerPage = Link::LINK_PER_PAGE;
-
-        $pageOffset = ($page - 1) * $linkPerPage;
-
-        $Statement->bindParam(":author", $AuthorId, \PDO::PARAM_INT);
-        $Statement->bindParam(":linkPerPage", $linkPerPage, \PDO::PARAM_INT);
-        $Statement->bindParam(":pageOffset", $pageOffset, \PDO::PARAM_INT);
-
-        $Statement->execute();
-
-        $links = $Statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        return array_filter($links, fn(array $linkRow) => new self($linkRow["id"], $author, $linkRow["url"], $linkRow["alias"], $linkRow["suspect"]));
+        $linkRows = self::generateLinksPaginationByAuthor($author)->getRowsByPageNumber($page);
+        return array_filter($linkRows, fn(array $linkRow) => new self($linkRow["id"], $author, $linkRow["url"], $linkRow["alias"], $linkRow["suspect"]));
 
     }
 
     public static function countLinkPages(Account $author): float
     {
 
-        $Database = DatabaseConnection::getMysqlPdo();
-
-        $Statement = $Database->prepare("SELECT count(*) as links FROM link WHERE author = ?");
-        $Statement->execute([$author->getId()]);
-
-        $Result = $Statement->fetch(\PDO::FETCH_ASSOC);
-
-        return ceil($Result["links"] / self::LINK_PER_PAGE);
+        return self::generateLinksPaginationByAuthor($author)->countPages();
 
     }
 
@@ -127,9 +107,7 @@ class Link
 
         }
 
-        $Database = DatabaseConnection::getMysqlPdo();
-
-        $Statement = $Database->prepare("INSERT INTO link (author, url, alias, suspect) VALUES (?, ?, ?, ?)");
+        $Statement = self::getMysqlPdo()->prepare("INSERT INTO link (author, url, alias, suspect) VALUES (?, ?, ?, ?)");
 
         $alias = uniqid();
         $suspect = self::isUrlSuspect($url);
@@ -141,7 +119,7 @@ class Link
             (int)$suspect
         ]);
 
-        $LinkId = $Database->lastInsertId();
+        $LinkId = self::getMysqlPdo()->lastInsertId();
 
         return new self(
             $LinkId,
@@ -178,11 +156,9 @@ class Link
         $countryCode = $geo->getCountry($ip);
         $time = time();
 
-        if($countryCode == "") $countryCode = "--";
+        if ($countryCode == "") $countryCode = "--";
 
-        $Database = DatabaseConnection::getMysqlPdo();
-
-        $Statement = $Database->prepare("INSERT INTO statistics (ip, country, time, link) VALUES (?, ?, ?, ?)");
+        $Statement = $this->getMysqlPdo()->prepare("INSERT INTO statistics (ip, country, time, link) VALUES (?, ?, ?, ?)");
 
         $Statement->execute([
             $ip,
@@ -190,26 +166,6 @@ class Link
             $time,
             $this->getId(),
         ]);
-
-    }
-
-    /**
-     * @return array rows of stats
-     */
-    public function getStatistics(): array
-    {
-
-        $Database = DatabaseConnection::getMysqlPdo();
-
-        $Statement = $Database->prepare("SELECT * FROM statistics WHERE link = ?");
-
-        $Statement->execute([
-            $this->getId(),
-        ]);
-
-        $Statistics = $Statement->fetchAll(\PDO::FETCH_ASSOC);
-
-        return $Statistics;
 
     }
 
