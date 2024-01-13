@@ -3,13 +3,14 @@
 
 namespace Shorter\Backend\App\Models;
 
-use Shorter\Backend\App\Models\AbstractModel;
 use Shorter\Backend\App\Models\Exceptions\InvalidClientData;
-use Shorter\Backend\Http\Request;
-use Shorter\Backend\Utils\SypexGeo;
 
 class Link extends AbstractModel
 {
+
+    protected static string $tableName = "link";
+
+    use LinkStatisticsTrait;
 
     public const URL_FORMAT_ERROR = "Url must match the format";
     const LINK_PER_PAGE = 5;
@@ -18,13 +19,10 @@ class Link extends AbstractModel
     {
     }
 
-    private static function findByField(string $field, string|int|float|bool $value): false|self
+    protected static function findByField(string $field, string|int|float|bool $value): false|self
     {
 
-        $Statement = self::getMysqlPdo()->prepare("SELECT * FROM link WHERE $field = ?");
-        $Statement->execute([$value]);
-
-        $LinkRow = @$Statement->fetchAll(\PDO::FETCH_ASSOC)[0];
+        $LinkRow = parent::findByField($field, $value);
         $Author = Account::getById($LinkRow["author"]);
 
         if (!$Author) return false;
@@ -145,27 +143,6 @@ class Link extends AbstractModel
             "alias" => $this->getAlias(),
             "suspect" => $this->isSuspect()
         ];
-
-    }
-
-    public function replenishStats(): void
-    {
-
-        $geo = new SypexGeo();
-        $ip = Request::getInstance()->getClientIp();
-        $countryCode = $geo->getCountry($ip);
-        $time = time();
-
-        if ($countryCode == "") $countryCode = "--";
-
-        $Statement = $this->getMysqlPdo()->prepare("INSERT INTO statistics (ip, country, time, link) VALUES (?, ?, ?, ?)");
-
-        $Statement->execute([
-            $ip,
-            $countryCode,
-            $time,
-            $this->getId(),
-        ]);
 
     }
 

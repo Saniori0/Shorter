@@ -10,6 +10,8 @@ use Shorter\Backend\Utils\JWT;
 class Account extends AbstractModel
 {
 
+    protected static string $tableName = "account";
+
     public const USERNAME_FORMAT_ERROR = "Username length must be >= 6 and <= 24";
     public const PASSWORD_FORMAT_ERROR = "Password length must be >= 6 and <= 24";
     public const EMAIL_FORMAT_ERROR = "Email must match the format";
@@ -22,11 +24,7 @@ class Account extends AbstractModel
 
     private static function getByField(string $field, string|int|float|bool $value): false|self
     {
-
-        $Statement = self::getMysqlPdo()->prepare("SELECT * FROM account WHERE $field = ?");
-        $Statement->execute([$value]);
-
-        $AccountRow = @$Statement->fetchAll(\PDO::FETCH_ASSOC)[0];
+        $AccountRow = parent::findByField($field, $value);
 
         return $AccountRow ? new self($AccountRow["id"], $AccountRow["username"], $AccountRow["password"], $AccountRow["email"]) : false;
 
