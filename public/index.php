@@ -21,7 +21,7 @@ Connection::setMysqlPdo("mysql:host={$_ENV["MYSQL_HOST"]};port={$_ENV["MYSQL_POR
 
 Response::dispatchHeadersFromArray([
     "Access-Control-Allow-Origin" => "*",
-    "Access-Control-Allow-Methods" => "GET, POST, DELETE, PUT, PATCH",
+    "Access-Control-Allow-Methods" => "GET, POST, DELETE, PUT, PATCH, OPTIONS",
     "Access-Control-Allow-Headers" => "*"
 ]);
 
