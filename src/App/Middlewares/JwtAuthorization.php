@@ -3,6 +3,7 @@
 
 namespace Shorter\Backend\App\Middlewares;
 
+use Exception;
 use Shorter\Backend\App\Middlewares\Exceptions\AuthException;
 use Shorter\Backend\App\Models\Account;
 use Shorter\Backend\Http\Request;
@@ -35,7 +36,7 @@ class JwtAuthorization extends AbstractMiddleware
 
             return $Account;
 
-        } catch (AuthException $e) {
+        } catch (Exception $e) {
 
             Response::json(403, [
                 "message" => "Jwt not verified",
