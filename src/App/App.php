@@ -22,6 +22,8 @@ use TypeError;
 class App
 {
 
+    private array $errors = [];
+
     public function __construct(public readonly Router $router = new Router())
     {
     }
@@ -66,15 +68,30 @@ class App
 
         if (is_null($PreparedRoute) || (is_object($PreparedRoute) && !($PreparedRoute instanceof PreparedRoute))) {
 
-            Response::json(404, [
-                "message" => "No matching endpoints found",
-                "data" => []
-            ])->dispatch();
+            $this->getError(404);
             return;
 
         }
 
         $PreparedRoute->execute();
+
+    }
+
+    public function setError(int $errorCode, Closure $callback): void
+    {
+
+        $this->errors[$errorCode] = $callback;
+
+    }
+
+    public function getError(int $errorCode): void
+    {
+
+        $callback = @$this->errors[$errorCode];
+
+        if(!isset($callback)) return;
+
+        $callback();
 
     }
 

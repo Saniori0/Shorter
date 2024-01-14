@@ -4,6 +4,9 @@ namespace Shorter\Backend\Http;
 
 class Response
 {
+
+    private static array $defaultHeaders = [];
+
     /**
      * @param int $code
      * @param mixed $data
@@ -11,6 +14,9 @@ class Response
      */
     public function __construct(private readonly int $code, private readonly mixed $data, private array $headers = [])
     {
+
+        $this->headers = array_merge($this->headers, self::getDefaultHeaders());
+
     }
 
     /**
@@ -46,6 +52,16 @@ class Response
         $response->setHeader("Content-Type", "text/html");
 
         return $response;
+    }
+
+    public static function getDefaultHeaders(): array
+    {
+        return self::$defaultHeaders;
+    }
+
+    public static function setDefaultHeaders(array $defaultHeaders): void
+    {
+        self::$defaultHeaders = $defaultHeaders;
     }
 
     /**

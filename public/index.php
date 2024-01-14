@@ -19,7 +19,22 @@ $_ENV = parse_ini_file(__DIR__ . "/../.env");
 
 Connection::setMysqlPdo("mysql:host={$_ENV["MYSQL_HOST"]};port={$_ENV["MYSQL_PORT"]};dbname={$_ENV["MYSQL_DATABASE"]}", $_ENV["MYSQL_USERNAME"], $_ENV["MYSQL_PASSWORD"]);
 
+Response::setDefaultHeaders([
+    "Access-Control-Allow-Origin" => "*",
+    "Access-Control-Allow-Methods" => "GET, POST, DELETE, PUT, PATCH",
+    "Access-Control-Allow-Headers" => "*"
+]);
+
 $app = new App();
+
+$app->setError(404, function () {
+
+    Response::json(404, [
+        "message" => "No matching endpoints found",
+        "data" => []
+    ])->dispatch();
+
+});
 
 // Hook for finding link by id or alias
 $app->router->hooker->hook("findLinkBy", function (string $fieldName, string $fieldValue) {
@@ -42,7 +57,7 @@ $app->router->hooker->hook("findLinkBy", function (string $fieldName, string $fi
 
     }
 
-    if(!$link){
+    if (!$link) {
 
         Response::json(404, [
             "message" => "Link not found",
@@ -94,7 +109,7 @@ $app->get("/accounts/byJwt", function (object $data) {
         "data" => $Account->get()
     ])->dispatch();
 
-    }, [JwtAuthorization::class]);
+}, [JwtAuthorization::class]);
 
 // Sign in Account
 $app->get("/accounts/jwt", function (object $data) {
@@ -156,8 +171,8 @@ $app->get("/accounts/links", function (object $data) {
 
     $Account = $data->middlewares["JwtAuth"];
 
-    $page = (int) @Request::getInstance()->getGet("page");
-    if($page <= 0) $page = 1;
+    $page = (int)@Request::getInstance()->getGet("page");
+    if ($page <= 0) $page = 1;
 
     $Links = $Account->getLinksWithPagination($page);
 
@@ -177,7 +192,7 @@ $app->get("/accounts/links/byId/:link@findLinkBy->id", function (object $data) {
     $Account = $data->middlewares["JwtAuth"];
     $link = $data->route->getParams()->link;
 
-    if(!$Account->hasRightOnLink($link)){
+    if (!$Account->hasRightOnLink($link)) {
 
         Response::json(403, [
             "message" => "Forbidden!",
@@ -200,9 +215,9 @@ $app->get("/accounts/links/byId/:link@findLinkBy->id/statistics", function (obje
 
     $link = $data->route->getParams()->link;
 
-    $page = (int) @Request::getInstance()->getGet("page");
+    $page = (int)@Request::getInstance()->getGet("page");
 
-    if($page <= 0) $page = 1;
+    if ($page <= 0) $page = 1;
 
     Response::json(200, [
         "message" => "Successfully!",
