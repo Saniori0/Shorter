@@ -19,7 +19,7 @@ $_ENV = parse_ini_file(__DIR__ . "/../.env");
 
 Connection::setMysqlPdo("mysql:host={$_ENV["MYSQL_HOST"]};port={$_ENV["MYSQL_PORT"]};dbname={$_ENV["MYSQL_DATABASE"]}", $_ENV["MYSQL_USERNAME"], $_ENV["MYSQL_PASSWORD"]);
 
-Response::setDefaultHeaders([
+Response::dispatchHeadersFromArray([
     "Access-Control-Allow-Origin" => "*",
     "Access-Control-Allow-Methods" => "GET, POST, DELETE, PUT, PATCH",
     "Access-Control-Allow-Headers" => "*"
