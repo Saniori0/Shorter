@@ -5,7 +5,7 @@
 2) MariaDB 8.2
 3) Apache
 
-Переименовать .env.example в .env
+Переименовать .env.example в .env и заполнить его
 
 ### Apache
 1) Включить поддержку .htaccess
