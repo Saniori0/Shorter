@@ -31,6 +31,18 @@ trait LinkStatisticsTrait
 
     }
 
+    public function countStatisticsRows(): int
+    {
+
+        $Statement = self::getMysqlPdo()->prepare("SELECT count(id) as quantity FROM statistics WHERE link = {$this->id}");
+        $Statement->execute();
+
+        $quantity = $Statement->fetch(PDO::FETCH_ASSOC);
+
+        return $quantity["quantity"];
+
+    }
+
     public function countStatisticsPages(): int
     {
 

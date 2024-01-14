@@ -84,9 +84,9 @@ $app->post("/accounts", function (object $data) {
     try {
 
         $Account = Account::create(
-            Request::getInstance()->getPost("username"),
-            Request::getInstance()->getPost("password"),
-            Request::getInstance()->getPost("email")
+            Request::getInstance()->getBody("username") ?? "",
+            Request::getInstance()->getBody("password") ?? "",
+            Request::getInstance()->getBody("email") ?? ""
         );
 
         Response::json(201, [
@@ -125,8 +125,8 @@ $app->get("/accounts/jwt", function (object $data) {
     try {
 
         $Account = Account::getAccountByLogin(
-            Request::getInstance()->getHeaderLine("x-email"),
-            Request::getInstance()->getHeaderLine("x-password"),
+            Request::getInstance()->getHeaderLine("x-email") ?? "",
+            Request::getInstance()->getHeaderLine("x-password") ?? "",
         );
 
         Response::json(200, [
@@ -153,7 +153,7 @@ $app->post("/accounts/links", function (object $data) {
     try {
 
         $Account = $data->middlewares["JwtAuth"];
-        $Link = $Account->createLink(Request::getInstance()->getPost("url"));
+        $Link = $Account->createLink(Request::getInstance()->getBody("url") ?? "");
 
 
         Response::json(201, [
@@ -179,7 +179,7 @@ $app->get("/accounts/links", function (object $data) {
 
     $Account = $data->middlewares["JwtAuth"];
 
-    $page = (int)@Request::getInstance()->getGet("page");
+    $page = (int)@Request::getInstance()->getGet("page") ?? 1;
     if ($page <= 0) $page = 1;
 
     $Links = $Account->getLinksWithPagination($page);
@@ -223,7 +223,7 @@ $app->get("/accounts/links/byId/:link@findLinkBy->id/statistics", function (obje
 
     $link = $data->route->getParams()->link;
 
-    $page = (int)@Request::getInstance()->getGet("page");
+    $page = (int)@Request::getInstance()->getGet("page") ?? 1;
 
     if ($page <= 0) $page = 1;
 
@@ -233,6 +233,7 @@ $app->get("/accounts/links/byId/:link@findLinkBy->id/statistics", function (obje
             "requests" => [
                 "list" => $link->getStatisticsWithPagination($page),
                 "pages" => $link->countStatisticsPages(),
+                "quantity" => $link->countStatisticsRows()
             ],
             "countries" => $link->getStatisticsByCountry()
         ]

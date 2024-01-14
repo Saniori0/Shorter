@@ -6,10 +6,14 @@ namespace Shorter\Backend\Http;
 class Request
 {
 
+    private array $body = [];
     private static self $instance;
 
     private function __construct(private array $headers = [])
     {
+
+        $body = file_get_contents("php://input");
+        $this->body = json_decode($body, 1) ?? [];
 
         $this->headers = getallheaders();
 
@@ -67,20 +71,27 @@ class Request
 
     public function getHeaderLine(string $headerName): ?string
     {
-        return $this->headers[$headerName];
+        return @$this->headers[$headerName];
     }
 
     public function getPost(string $key): mixed
     {
 
-        return $_POST[$key];
+        return @$_POST[$key];
+
+    }
+
+    public function getBody(string $key): mixed
+    {
+
+        return @$this->body[$key];
 
     }
 
     public function getGet(string $key): mixed
     {
 
-        return $_GET[$key];
+        return @$_GET[$key];
 
     }
 
